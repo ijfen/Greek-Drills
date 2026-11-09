@@ -10,6 +10,6 @@ for marker, text in [('/*ENGINE*/', strip(read('engine.js'))), ('/*NOUNDATA*/', 
     assert marker in page, marker
     page = page.replace(marker, text)
 head = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
-        '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n</head>\n<body>\n')
+        '<meta name="viewport" content="width=device-width,initial-scale=1">\n</head>\n<body>\n')
 (Path(__file__).parent / 'index.html').write_text(head + page + '\n</body>\n</html>\n')
 print('wrote index.html')

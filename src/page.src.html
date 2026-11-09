@@ -24,6 +24,7 @@
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.45}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
 .g{font-family:var(--greek);font-feature-settings:"kern"}
@@ -122,7 +123,7 @@ table.tv{border-collapse:separate;border-spacing:5px;margin:-5px}
 .sq{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 13px;font-weight:500;min-height:32px;display:inline-flex;align-items:center;gap:6px}
 
 .groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
-.grp{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:3px;position:relative}
+.grp{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:3px;position:relative;min-width:0}
 .grp[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
 .grp:disabled{background:transparent;border-style:dashed;cursor:not-allowed;color:var(--off)}
 .grp-h{display:flex;align-items:baseline;gap:8px;padding-right:24px;flex-wrap:wrap}
@@ -131,7 +132,7 @@ table.tv{border-collapse:separate;border-spacing:5px;margin:-5px}
 .grp-ex{font-family:var(--greek);font-size:1.08rem}
 .grp-desc{color:var(--muted);font-size:.86rem}
 .grp-why{font-size:.84rem;font-style:italic}
-.grp-verbs{font-family:var(--greek);color:var(--muted);font-size:.93rem}
+.grp-verbs{font-family:var(--greek);color:var(--muted);font-size:.93rem;display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .grp:disabled .grp-alt,.grp:disabled .grp-desc,.grp:disabled .grp-verbs{color:var(--off)}
 .grp .mark{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:5px;border:1.5px solid var(--line);display:grid;place-items:center}
 .grp[aria-pressed="true"] .mark{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
@@ -241,6 +242,7 @@ table.pick td{padding:0}
 @media (min-width:600px){.mc{grid-template-columns:1fr 1fr}}
 .mco{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:10px 14px;font-family:var(--greek);font-size:1.4rem;text-align:left;display:flex;gap:12px;align-items:center}
 .mco .n{font-family:var(--ui);font-size:.78rem;color:var(--muted);min-width:1em}
+@media (hover:none) and (pointer:coarse){.mco .n{display:none}}
 .mco:hover:not(:disabled){border-color:var(--accent)}
 .mco .ico{margin-left:auto;width:18px;height:18px}
 .mco.ok{background:var(--good-soft);border-color:var(--good);box-shadow:inset 0 0 0 1px var(--good)}
