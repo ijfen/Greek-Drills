@@ -1,0 +1,990 @@
+<title>Greek Drills</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one centered working column; sticky tab bar; quiz views sized to fit one screen; set-up scrolls into a live paradigm preview. */
+:root{
+  --bg:#F2F4F0; --surface:#FFFFFF; --ink:#1B2220; --muted:#5B6763; --line:#D6DDD7;
+  --accent:#2A5B89; --accent-ink:#FFFFFF; --accent-soft:#E1EAF3;
+  --good:#2B774A; --good-soft:#E0F0E5; --bad:#AE3F2B; --bad-soft:#F7E3DE; --off:#A7B0AC;
+  --greek:'Gentium Book Plus','Gentium Plus','Noto Serif','Times New Roman',serif;
+  --ui:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111614; --surface:#19201E; --ink:#E4E9E6; --muted:#95A29D; --line:#2C3532;
+  --accent:#8CB5DF; --accent-ink:#0D1824; --accent-soft:#1C2A38;
+  --good:#6DC18F; --good-soft:#15301F; --bad:#EC8B74; --bad-soft:#3A1F19; --off:#4C5753; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#111614; --surface:#19201E; --ink:#E4E9E6; --muted:#95A29D; --line:#2C3532;
+  --accent:#8CB5DF; --accent-ink:#0D1824; --accent-soft:#1C2A38;
+  --good:#6DC18F; --good-soft:#15301F; --bad:#EC8B74; --bad-soft:#3A1F19; --off:#4C5753; color-scheme:dark }
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.g{font-family:var(--greek);font-feature-settings:"kern"}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ico{width:14px;height:14px;flex:none;display:inline-block;vertical-align:-2px}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar-in{max-width:920px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:7px;display:flex;align-items:center;gap:12px}
+.brand{font-family:var(--greek);font-size:1.2rem;font-weight:700;margin-right:auto;white-space:nowrap}
+.tabs{display:flex;gap:2px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:3px;min-width:0;overflow-x:auto}
+.tab{border:0;background:transparent;padding:5px 12px;border-radius:7px;font-weight:500;color:var(--muted);white-space:nowrap}
+.tab[aria-current="page"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .12)}
+.score{font-variant-numeric:tabular-nums;font-weight:600;color:var(--muted);min-width:3em;text-align:right}
+.drill{position:relative;margin-right:auto}
+.drillbtn{border:0;background:none;font-family:var(--greek);font-size:1.2rem;font-weight:700;padding:3px 8px;margin-left:-8px;border-radius:7px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.drillbtn:hover,.drillbtn[aria-expanded="true"]{background:var(--bg)}
+.drillbtn .dcar{width:12px;height:12px;color:var(--muted)}
+.menu{position:absolute;top:calc(100% + 6px);left:-8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgb(0 0 0 / .16);padding:4px;min-width:220px;z-index:20;display:flex;flex-direction:column}
+.mi{display:flex;width:100%;border:0;background:none;padding:8px 10px;border-radius:7px;text-align:left;gap:10px;align-items:center;font-weight:500}
+.mi:hover{background:var(--accent-soft)}
+.mi .ico{color:var(--accent);visibility:hidden}
+.mi[aria-checked="true"] .ico{visibility:visible}
+@media (max-width:600px){ .bar-in{flex-wrap:wrap;row-gap:6px} .tabs{order:3;width:100%} .tab{flex:1;padding:5px 6px} }
+.grids.one{grid-template-columns:1fr}
+.msep{height:1px;background:var(--line);margin:4px 6px}
+.sqsep{width:1px;align-self:stretch;background:var(--line);margin:0 4px}
+/* textbook map: a grid that becomes stacked cards when narrow; never wider than the page */
+#t-page{gap:12px}
+.tintro{display:flex;flex-direction:column;gap:4px;max-width:70ch}
+.tintro p{margin:0;color:var(--muted);font-size:.92rem}
+.tintro .tdisc{font-size:.86rem;font-style:italic}
+#t-books .opt,#t-mode .opt{background:var(--surface)}
+#t-books .opt[aria-pressed="true"],#t-mode .opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.trowmode{flex-wrap:wrap;gap:6px 10px}
+.trowmode .plabel{width:auto}
+.ttitle{font-family:var(--greek);font-weight:700;font-size:1.15rem;margin-top:4px}
+.tgrid{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden;max-width:100%}
+.trow{display:grid;grid-template-columns:4.6rem repeat(5,minmax(0,1fr));border-top:1px solid var(--line);min-width:0}
+.trow:first-child{border-top:0}
+.trow.syntax{background:var(--bg)}
+.tch{padding:8px 10px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:break-word}
+.tch small{display:block;font-weight:400;color:var(--muted);font-size:.76rem;line-height:1.3}
+.tch .tflag{font-style:italic}
+.tunit{display:none}
+.thead{font-size:.8rem;color:var(--muted);font-weight:600;background:var(--bg)}
+.thead .tch{color:var(--muted)}
+.thead .tcell{padding:8px 10px;border-left:1px solid var(--line);min-width:0;overflow-wrap:break-word}
+button.tcell{border:0;border-left:1px solid var(--line);border-radius:0;background:none;text-align:left;padding:8px 10px;font-family:var(--greek);font-size:.96rem;line-height:1.35;min-width:0;overflow-wrap:break-word;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start}
+button.tcell:hover{background:var(--accent-soft)}
+button.tcell:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tcell ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px}
+.tcell .none{color:var(--off)}
+button.tcell.nodata{color:var(--muted)}
+.tlab{display:none}
+.syntax .span{grid-column:2/-1;color:var(--muted);font-size:.88rem;padding:8px 10px;border-left:1px solid var(--line)}
+.syntax .span b{font-weight:500;color:var(--ink)}
+@media (max-width:760px){
+  .thead{display:none}
+  .trow{grid-template-columns:minmax(0,1fr);padding-block:6px}
+  .tch{padding:2px 12px}
+  .tunit{display:inline}
+  button.tcell{border-left:0;padding:5px 12px}
+  button.tcell.empty{display:none}
+  .tlab{display:block;font-family:var(--ui);font-size:.76rem;color:var(--muted);font-weight:500}
+  .syntax .span{grid-column:auto;border-left:0;padding:0 12px 4px}
+}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:9px;max-width:calc(100% - 32px);width:max-content;z-index:30;font-size:.9rem;box-shadow:0 6px 20px rgb(0 0 0 / .2)}
+@media (min-width:640px){.grids.one{max-width:50%}}
+
+main{max-width:920px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 32px}
+section.view{display:flex;flex-direction:column;gap:12px}
+#v-setup,.setupv{gap:20px}
+.secs{display:flex;flex-direction:column;gap:20px}
+h2{font-size:1rem;font-weight:600;margin:0}
+.help{color:var(--muted);margin:1px 0 0;font-size:.86rem}
+.block{display:flex;flex-direction:column;gap:9px}
+
+/* set-up toggles */
+.tv-wrap{overflow:visible}
+table.tv{border-collapse:separate;border-spacing:5px;margin:-5px}
+.tv th{font-weight:500;text-align:left;padding:0 6px 0 2px}
+.tv thead th{text-align:center;color:var(--muted);font-size:.85rem}
+.tv th button{border:0;background:none;padding:2px 4px;border-radius:6px;text-align:inherit;color:inherit;font-weight:inherit}
+.tv th button:hover{background:var(--accent-soft)}
+.tname{font-weight:600}
+.talt{font-size:.8rem;color:var(--muted);font-weight:400;margin-left:5px}
+.cell{width:86px;height:32px;border:1px solid var(--line);background:var(--surface);border-radius:8px;display:grid;place-items:center}
+.cell[aria-pressed="true"],.sq[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.cell:disabled,.sq:disabled{background:transparent;border-style:dashed;color:var(--off);cursor:not-allowed}
+.tv tr.off .tname,.tv tr.off .talt{color:var(--off)}
+@media (max-width:480px){.cell{width:68px}.talt{display:block;margin:0}}
+@media (max-width:400px){.cell{width:52px}.tv thead th{font-size:.8rem}.tv th{padding:0 2px 0 0}}
+.sqs{display:flex;flex-wrap:wrap;gap:6px}
+.sq{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 13px;font-weight:500;min-height:32px;display:inline-flex;align-items:center;gap:6px}
+
+.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.grp{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:3px;position:relative}
+.grp[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.grp:disabled{background:transparent;border-style:dashed;cursor:not-allowed;color:var(--off)}
+.grp-h{display:flex;align-items:baseline;gap:8px;padding-right:24px;flex-wrap:wrap}
+.grp-name{font-weight:600}
+.grp-alt{color:var(--muted);font-size:.84rem}
+.grp-ex{font-family:var(--greek);font-size:1.08rem}
+.grp-desc{color:var(--muted);font-size:.86rem}
+.grp-why{font-size:.84rem;font-style:italic}
+.grp-verbs{font-family:var(--greek);color:var(--muted);font-size:.93rem}
+.grp:disabled .grp-alt,.grp:disabled .grp-desc,.grp:disabled .grp-verbs{color:var(--off)}
+.grp .mark{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:5px;border:1.5px solid var(--line);display:grid;place-items:center}
+.grp[aria-pressed="true"] .mark{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.grp:disabled .mark{border-style:dashed}
+.subhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+
+/* preview */
+.preview-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px}
+.count{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.92rem}
+.count b{color:var(--ink)}
+.vlist{display:flex;flex-direction:column;gap:6px}
+details.verb{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+details.verb summary{list-style:none;padding:8px 8px 8px 14px;display:flex;gap:10px;align-items:center;cursor:pointer}
+details.verb summary::-webkit-details-marker{display:none}
+.caret{width:12px;height:12px;color:var(--muted);transition:transform .15s}
+details[open] .caret{transform:rotate(90deg)}
+.vhead{display:flex;flex-direction:column;min-width:0;margin-right:auto}
+.vpp{font-family:var(--greek);font-size:1.12rem;line-height:1.3}
+.vdef{color:var(--muted);font-size:.86rem;line-height:1.35}
+.setbar{display:flex;gap:8px;justify-content:flex-end;margin-bottom:-10px}
+.btn.sm{padding:5px 12px;font-weight:500;font-size:.88rem}
+.vmeta{color:var(--muted);font-size:.84rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.vx{border:0;background:transparent;width:30px;height:30px;border-radius:7px;display:grid;place-items:center;color:var(--muted)}
+.vx:hover{background:var(--bad-soft);color:var(--bad)}
+.vexcl{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 14px;border:1px dashed var(--line);border-radius:var(--r);color:var(--muted)}
+.vexcl .vpp{color:var(--off);text-decoration:line-through;text-decoration-thickness:1px}
+.vexcl .vdef{color:var(--off)}
+.vin{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:4px 10px;font-size:.85rem;font-weight:500}
+.vbody{padding:2px 14px 14px;display:flex;flex-direction:column;gap:14px}
+.vnote{color:var(--muted);font-size:.85rem;margin:0}
+.blk h3{font-size:.92rem;font-weight:600;margin:0 0 4px}
+.blk h3 .alt{font-weight:400;color:var(--muted)}
+.ptab-wrap{overflow-x:auto}
+table.par{border-collapse:collapse}
+table.par th{font-weight:500;color:var(--muted);text-align:left;padding:3px 14px 3px 0;font-size:.8rem;white-space:nowrap}
+table.par td{font-family:var(--greek);font-size:1.05rem;padding:2px 16px 2px 0;white-space:nowrap}
+table.par tbody tr+tr td,table.par tbody tr+tr th{border-top:1px solid var(--line)}
+.or{display:block;font-size:.84rem;color:var(--muted)}
+.pgrid{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:720px){.pgrid{grid-template-columns:auto auto;justify-content:start;column-gap:36px}}
+.ptitle{font-size:.8rem;color:var(--muted)}
+.inf{font-family:var(--greek);font-size:1.05rem}
+.empty{border:1px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;color:var(--muted)}
+
+/* quiz */
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;display:flex;flex-direction:column;gap:2px;align-items:center;text-align:center}
+.pmode{display:flex;justify-content:flex-end;margin-bottom:-4px}
+.pswitch{position:relative;display:inline-grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px;font-size:.86rem;font-weight:500;cursor:pointer}
+.pswitch .plab{position:relative;z-index:1;padding:4px 12px;text-align:center;color:var(--muted);white-space:nowrap}
+.pthumb{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;background:var(--accent)}
+.pswitch[aria-checked="true"] .pthumb{transform:translateX(100%)}
+.pswitch[aria-checked="false"] .plab:nth-child(2),.pswitch[aria-checked="true"] .plab:nth-child(3){color:var(--accent-ink)}
+@media (prefers-reduced-motion:no-preference){.pthumb{transition:transform .18s ease}.pswitch .plab{transition:color .18s}}
+.qctx{font-size:clamp(1.5rem,5vw,2rem);line-height:1.3;text-wrap:balance}
+.slot{color:var(--muted);border:1.5px dashed var(--line);border-radius:7px;padding:0 .3em;background:var(--bg);white-space:nowrap}
+.fbterm{color:var(--muted);font-size:.9rem}
+.qform{font-family:var(--greek);font-size:clamp(1.9rem,6vw,2.6rem);line-height:1.15}
+.qlemma{font-family:var(--greek);font-size:1.4rem;line-height:1.2}
+.qdesc{font-size:1rem}
+.qsub{color:var(--muted);font-size:.92rem}
+.qpp{font-family:var(--greek);color:var(--muted);font-size:1rem}
+
+.fb{border-radius:var(--r);padding:9px 10px 9px 14px;display:flex;gap:12px;align-items:center}
+.fb.ok{background:var(--good-soft)} .fb.no{background:var(--bad-soft)}
+.fb-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.fb strong{font-weight:600}
+.fb .ok-t{color:var(--good)} .fb .no-t{color:var(--bad)}
+.fb .g{font-size:1.08rem}
+.fb .gv{color:var(--bad);text-decoration:line-through;text-decoration-thickness:1px}
+
+.atile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px}
+.prow{display:flex;gap:10px;align-items:center}
+.plabel{color:var(--muted);font-size:.85rem;width:3.6rem;flex:none}
+.seg{display:flex;flex-wrap:wrap;gap:5px}
+.opt{border:1px solid var(--line);background:var(--bg);border-radius:7px;padding:5px 11px;font-weight:500;display:inline-flex;gap:5px;align-items:center}
+.opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.opt .alt{font-weight:400;opacity:.75}
+.opt:disabled{cursor:default}
+@media (max-width:600px){.opt .alt{display:none}}
+.ok-c{background:var(--good)!important;border-color:var(--good)!important;color:var(--surface)!important}
+.no-c{background:var(--bad)!important;border-color:var(--bad)!important;color:var(--surface)!important}
+.want-c{border-color:var(--good)!important;box-shadow:inset 0 0 0 2px var(--good);color:var(--good)!important}
+
+.grids{display:grid;grid-template-columns:1fr;gap:8px}
+@media (min-width:640px){.grids{grid-template-columns:1fr 1fr;gap:16px}}
+table.pick{border-collapse:separate;border-spacing:3px;width:100%;margin:-3px 0}
+table.pick th{font-weight:500;font-size:.78rem;color:var(--muted);text-align:left;padding:0 4px 0 0;white-space:nowrap}
+table.pick thead th{text-align:center}
+table.pick thead th.corner{text-align:left;color:var(--ink);font-weight:600;font-size:.85rem}
+table.pick td{padding:0}
+.pc{width:100%;height:32px;border:1px solid var(--line);border-radius:7px;background:var(--bg);display:grid;place-items:center}
+.pc[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.pc:disabled{cursor:default}
+.pc.na{background:transparent;border-style:dashed}
+.pnum .pc{justify-items:start;padding:0 12px;font-weight:500;display:flex;gap:6px;align-items:center}
+@media (max-width:600px){.pc{height:29px}}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.hint{color:var(--muted);font-size:.88rem;margin:0}
+
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 16px;font-weight:600;white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.atile .actions{justify-content:flex-end}
+
+.mc{display:grid;grid-template-columns:1fr;gap:8px}
+@media (min-width:600px){.mc{grid-template-columns:1fr 1fr}}
+.mco{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:10px 14px;font-family:var(--greek);font-size:1.4rem;text-align:left;display:flex;gap:12px;align-items:center}
+.mco .n{font-family:var(--ui);font-size:.78rem;color:var(--muted);min-width:1em}
+.mco:hover:not(:disabled){border-color:var(--accent)}
+.mco .ico{margin-left:auto;width:18px;height:18px}
+.mco.ok{background:var(--good-soft);border-color:var(--good);box-shadow:inset 0 0 0 1px var(--good)}
+.mco.ok .ico{color:var(--good)}
+.mco.no{background:var(--bad-soft);border-color:var(--bad)}
+.mco.no .ico{color:var(--bad)}
+.mco:disabled{cursor:default}
+
+.tin{width:100%;font-family:var(--greek);font-size:1.7rem;padding:8px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--ink);text-align:center}
+.tin::placeholder{font-family:var(--ui);font-size:1rem;color:var(--muted)}
+.tin.ok{border-color:var(--good);box-shadow:inset 0 0 0 1px var(--good)}
+.tin.no{border-color:var(--bad);box-shadow:inset 0 0 0 1px var(--bad)}
+.toggle{display:inline-flex;gap:7px;align-items:center;color:var(--muted);font-size:.88rem;cursor:pointer;margin-right:auto}
+.toggle input{width:16px;height:16px;accent-color:var(--accent)}
+.lkey{font-size:.85rem;color:var(--muted)}
+.lkey summary{cursor:pointer;width:max-content}
+.lkey-b{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px;font-variant-numeric:tabular-nums}
+.lkey-b span{white-space:nowrap}
+.lkey-b+.lkey-b{border-top:1px solid var(--line);padding-top:6px}
+.lkey-n{margin:6px 0 0}
+
+.rsum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rs{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
+.rs .k{color:var(--muted);font-size:.84rem}
+.rs .v{font-size:1.3rem;font-weight:600;font-variant-numeric:tabular-nums}
+.rlist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.ri{display:grid;grid-template-columns:14px 4.6rem 1fr;gap:10px;padding:8px 14px;align-items:baseline}
+.ri+.ri{border-top:1px solid var(--line)}
+.ri .s{width:10px;height:10px;border-radius:50%;align-self:center}
+.ri .s.ok{background:var(--good)} .ri .s.no{background:var(--bad)}
+.ri .m{color:var(--muted);font-size:.84rem}
+.ri .d{min-width:0}
+.ri .g{font-size:1.08rem}
+.ri .gv{color:var(--bad);text-decoration:line-through;text-decoration-thickness:1px}
+@media (max-width:480px){.ri{grid-template-columns:14px 1fr}.ri .m{display:none}}
+@media (prefers-reduced-motion:no-preference){.tab,.cell,.sq,.grp,.opt,.pc,.mco{transition:background-color .12s,border-color .12s,color .12s}}
+@media (prefers-reduced-motion:reduce){.caret{transition:none}}
+</style>
+
+<div class="bar"><div class="bar-in">
+  <div class="drill">
+    <button class="drillbtn" id="drillbtn" aria-haspopup="menu" aria-expanded="false"><span id="drillname">Greek Verbs</span><svg class="dcar" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5l3.5 3.5 3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="menu" id="drillmenu" role="menu" hidden>
+      <button class="mi" role="menuitemradio" data-drill="verb"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Verbs</button>
+      <button class="mi" role="menuitemradio" data-drill="noun"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Nouns and pronouns</button>
+      <button class="mi" role="menuitemradio" data-drill="adj"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Adjectives</button>
+      <div class="msep" role="separator"></div>
+      <button class="mi" role="menuitemradio" data-drill="book"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Practice by textbook</button>
+    </div>
+  </div>
+  <nav class="tabs" aria-label="Sections">
+    <button class="tab" data-tab="setup">Set up</button>
+    <button class="tab" data-tab="parse">Parse</button>
+    <button class="tab" data-tab="mc">Choose</button>
+    <button class="tab" data-tab="type">Type</button>
+    <button class="tab" data-tab="results">Results</button>
+  </nav>
+  <div class="score" id="score" title="Correct answers this session">0/0</div>
+</div></div>
+
+<main>
+  <section class="view" id="v-setup">
+    <div class="setbar"><button class="btn sm" id="v-all">Select all</button><button class="btn sm" id="v-none">Clear all</button></div>
+    <div class="block">
+      <div><h2>Tenses and voices</h2><p class="help">Tap a tense or voice name to toggle its whole row or column. In the present and imperfect, middle and passive share one set of forms.</p></div>
+      <div class="tv-wrap"><table class="tv" id="tv"></table></div>
+    </div>
+    <div class="block">
+      <h2>Moods and verbal forms</h2>
+      <div class="sqs" id="moods"></div>
+    </div>
+    <div class="block">
+      <div class="subhead"><h2>Verb types</h2><p class="help">For the present, imperfect and future</p></div>
+      <div class="groups" id="groups-p"></div>
+    </div>
+    <div class="block">
+      <div class="subhead"><h2>Aorist types</h2><p class="help">For the aorist, whatever the verb type</p></div>
+      <div class="groups" id="groups-a"></div>
+    </div>
+    <div class="block">
+      <div class="preview-head"><h2>What you'll be tested on</h2><div class="count" id="count"></div></div>
+      <div id="preview"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-parse" hidden></section>
+  <section class="view" id="v-mc" hidden></section>
+  <section class="view" id="v-type" hidden></section>
+  <section class="view" id="v-results" hidden></section>
+
+  <section class="view setupv" id="n-setup" hidden>
+    <div class="setbar"><button class="btn sm" id="n-all">Select all</button><button class="btn sm" id="n-none">Clear all</button></div>
+    <div id="n-sections" class="secs"></div>
+    <div class="block">
+      <div class="preview-head"><h2>What you'll be tested on</h2><div class="count" id="n-count"></div></div>
+      <div id="n-preview"></div>
+    </div>
+  </section>
+  <section class="view" id="n-parse" hidden></section>
+  <section class="view" id="n-mc" hidden></section>
+  <section class="view" id="n-type" hidden></section>
+  <section class="view" id="n-results" hidden></section>
+
+  <section class="view setupv" id="a-setup" hidden>
+    <div class="setbar"><button class="btn sm" id="a-all">Select all</button><button class="btn sm" id="a-none">Clear all</button></div>
+    <div id="a-sections" class="secs"></div>
+    <div class="block">
+      <div class="preview-head"><h2>What you'll be tested on</h2><div class="count" id="a-count"></div></div>
+      <div id="a-preview"></div>
+    </div>
+  </section>
+  <section class="view" id="a-parse" hidden></section>
+  <section class="view" id="a-mc" hidden></section>
+  <section class="view" id="a-type" hidden></section>
+  <section class="view" id="a-results" hidden></section>
+
+  <section class="view" id="t-page" hidden>
+    <div class="tintro">
+      <p>Tap a cell to open that drill with everything taught up to that point selected. Right-click a cell, or switch the setting below, to practice only that chapter's new material.</p>
+      <p class="tdisc">This map may be inaccurate, and some of its content has not been added to the drills yet.</p>
+    </div>
+    <div class="seg" id="t-books" role="group" aria-label="Textbook"></div>
+    <div class="prow trowmode"><div class="plabel">A tap opens</div><div class="seg" id="t-mode"></div></div>
+    <h2 id="t-title" class="ttitle"></h2>
+    <div class="tgrid" id="t-grid"></div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+// Beta Code style Latin -> Greek, applied live to answer fields
+(function(){
+const BETA={a:'α',b:'β',g:'γ',d:'δ',e:'ε',z:'ζ',h:'η',q:'θ',i:'ι',k:'κ',l:'λ',m:'μ',n:'ν',c:'ξ',o:'ο',p:'π',r:'ρ',s:'σ',t:'τ',u:'υ',f:'φ',x:'χ',y:'ψ',w:'ω'};
+const DIAC={')':'\u0313','(':'\u0314','/':'\u0301','\\':'\u0300','=':'\u0342','|':'\u0345','+':'\u0308'};
+const RANK={'\u0313':0,'\u0314':0,'\u0308':0,'\u0301':1,'\u0300':1,'\u0342':1,'\u0345':2};
+const GREEK=/\p{Script=Greek}/u;
+function addMark(ch,mark){
+  const d=ch.normalize('NFD'); const base=d[0]; const marks=[...d.slice(1)].filter(m=>m!==mark);
+  if(mark==='\u0313'||mark==='\u0314') for(let i=marks.length-1;i>=0;i--) if(marks[i]==='\u0313'||marks[i]==='\u0314') marks.splice(i,1);
+  if(RANK[mark]===1) for(let i=marks.length-1;i>=0;i--) if(RANK[marks[i]]===1) marks.splice(i,1);
+  marks.push(mark); marks.sort((x,y)=>(RANK[x]??1)-(RANK[y]??1));
+  return (base+marks.join('')).normalize('NFC');
+}
+function conv(s){
+  const out=[]; let up=false, pend=[];
+  for(const ch of s){
+    const lo=ch.toLowerCase();
+    if(ch==='*'){ up=true; pend=[]; continue; }
+    if(up&&DIAC[ch]){ pend.push(DIAC[ch]); continue; }
+    if(BETA[lo]){ let g=ch===lo&&!up?BETA[lo]:BETA[lo].toUpperCase(); for(const m of pend) g=addMark(g,m); out.push(g); up=false; pend=[]; }
+    else if(DIAC[ch]&&out.length&&GREEK.test(out[out.length-1])&&out[out.length-1]!=='σ'&&out[out.length-1]!=='ς') out[out.length-1]=addMark(out[out.length-1],DIAC[ch]);
+    else out.push(ch);
+  }
+  return out.join('').replace(/ς(?=\p{L})/gu,'σ').replace(/σ(?!\p{L})/gu,'ς').normalize('NFC');
+}
+window.GVD_translit=conv;
+window.GVD_translitInput=function(el){
+  const v=el.value, pos=el.selectionStart==null?v.length:el.selectionStart;
+  const nv=conv(v); if(nv===v) return;
+  const np=conv(v.slice(0,pos)).length;
+  el.value=nv; try{ el.setSelectionRange(np,np); }catch(e){}
+};
+window.LKEY_HTML=`<details class="lkey"><summary>Latin key</summary><div class="lkey-b"><span>a α</span><span>b β</span><span>g γ</span><span>d δ</span><span>e ε</span><span>z ζ</span><span>h η</span><span>q θ</span><span>i ι</span><span>k κ</span><span>l λ</span><span>m μ</span><span>n ν</span><span>c ξ</span><span>o ο</span><span>p π</span><span>r ρ</span><span>s σ</span><span>t τ</span><span>u υ</span><span>f φ</span><span>x χ</span><span>y ψ</span><span>w ω</span></div><div class="lkey-b"><span>) smooth</span><span>( rough</span><span>/ acute</span><span>\\ grave</span><span>= circumflex</span><span>| iota subscript</span><span>+ diaeresis</span></div><p class="lkey-n">Type marks after the letter: a)/ → ἄ, w| → ῳ. Capitals work: Swkra/ths → Σωκράτης.</p></details>`;
+})();
+</script>
+<script>
+/*ENGINE*/
+</script>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const I_CHECK='<svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const I_X='<svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+const I_CARET='<svg class="caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2.5l4 3.5-4 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+const TENSES=[
+  {k:'pres',name:'Present',alt:'progressive'},
+  {k:'impf',name:'Imperfect',alt:'past progressive'},
+  {k:'fut',name:'Future'},
+  {k:'aor',name:'Aorist'},
+  {k:'perf',name:'Perfect'},
+  {k:'plup',name:'Pluperfect'},
+];
+const VOICES=[{k:'act',name:'Active'},{k:'mid',name:'Middle'},{k:'pass',name:'Passive'}];
+const AVAIL=new Set(['pres:act','pres:mid','pres:pass','impf:act','impf:mid','impf:pass','fut:act','fut:mid','aor:act','aor:mid']);
+const MOODS=[
+  {k:'ind',name:'Indicative'},{k:'subj',name:'Subjunctive'},{k:'opt',name:'Optative'},
+  {k:'imp',name:'Imperative'},{k:'inf',name:'Infinitive'},{k:'ptc',name:'Participle'}];
+const FINITE=['ind','subj','opt','imp'];
+const PGROUPS=[
+  {k:'them',name:'Thematic verbs',alt:'-ω verbs',ex:'λύω, λείπω, ἄγω',desc:'Every regular -ω verb, whatever kind of aorist it has.'},
+  {k:'dep',name:'Deponent verbs',alt:'middle-only',ex:'βούλομαι',desc:'Middle forms with active meaning.'},
+  {k:'eimi',name:'The verb “to be”',ex:'εἰμί',desc:'Irregular present and imperfect; future ἔσομαι.'},
+  {k:'contract',name:'Contract verbs',ex:'τιμάω, τιμῶ',desc:'Stems in -α, -ε, -ο that merge with the ending.',off:true},
+  {k:'mi',name:'-μι verbs',alt:'athematic',ex:'τίθημι',desc:'No thematic vowel between stem and ending.',off:true},
+];
+const AGROUPS=[
+  {k:'root',name:'Root aorist',alt:'second aorist',ex:'λείπω → ἔλιπον',desc:'Present-style endings on the bare root, with the accent shifted onto the ending in the participle and infinitive.'},
+  {k:'sig',name:'Sigmatic aorist',alt:'first aorist',ex:'παύω → ἔπαυσα',desc:'Aorist marked with -σα.',off:true},
+];
+const TL={pres:'present',impf:'imperfect',fut:'future',aor:'aorist'};
+const TALT={pres:'progressive',impf:'past progressive'};
+const VL={act:'active',mp:'middle/passive',mid:'middle'};
+const ML={ind:'indicative',subj:'subjunctive',opt:'optative',imp:'imperative',inf:'infinitive',ptc:'participle'};
+const CL={nom:'nominative',gen:'genitive',dat:'dative',acc:'accusative',voc:'vocative'};
+const GL={m:'masculine',f:'feminine',n:'neuter'};
+const NL={sg:'singular',pl:'plural'};
+const PL={1:'1st',2:'2nd',3:'3rd'};
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+const keyOf=r=>[r.vi,r.t,r.vo,r.m,r.p||'',r.n||'',r.c||'',r.g||''].join('|');
+const BYKEY=new Map(DATA.map((r,i)=>[keyOf(r),i]));
+DATA.forEach(r=>{ if(r.m==='ptc'&&r.c==='voc'){ const nom=DATA[BYKEY.get(keyOf(Object.assign({},r,{c:'nom'})))]; if(nom&&nom.f===r.f) r.vocDup=true; }});
+const BYSTR=new Map();
+DATA.forEach((r,i)=>{ for(const s of [r.f,r.alt]){ if(!s) continue; const k=r.vi+'|'+s; if(!BYSTR.has(k)) BYSTR.set(k,[]); if(!BYSTR.get(k).includes(i)) BYSTR.get(k).push(i);} });
+const first1sg=(vi,t)=>{ for(const vo of ['act','mid','mp']){ const r=DATA[BYKEY.get([vi,t,vo,'ind',1,'sg','',''].join('|'))]; if(r) return r.f; } return null; };
+
+// ---------- state ----------
+const S={cells:new Set(['pres:act','pres:mid','aor:act','aor:mid']),moods:new Set(['ptc']),groups:new Set(['them','root']),excl:new Set(),strict:false,ctx:false,tab:'setup'};
+try{ const raw=localStorage.getItem('gvd-settings-2'); if(raw){ const o=JSON.parse(raw); S.cells=new Set((o.cells||[]).filter(c=>AVAIL.has(c))); S.moods=new Set(o.moods||[]); S.groups=new Set(o.groups||[]); S.excl=new Set(o.excl||[]); if('strict2' in o) S.strict=o.strict2; if('ctx' in o) S.ctx=!!o.ctx; if(o.tab) S.tab=o.tab; } }catch(e){}
+function save(){ try{ localStorage.setItem('gvd-settings-2',JSON.stringify({cells:[...S.cells],moods:[...S.moods],groups:[...S.groups],excl:[...S.excl],strict2:S.strict,ctx:S.ctx,tab:S.tab})); }catch(e){} }
+
+function voiceOk(r){
+  if(r.vo==='act') return S.cells.has(r.t+':act');
+  if(r.vo==='mid') return S.cells.has(r.t+':mid');
+  return S.cells.has(r.t+':mid')||S.cells.has(r.t+':pass');
+}
+const groupKey=r=>r.t==='aor'?VERBS[r.vi].aorType:VERBS[r.vi].cls;
+const groupOk=r=>S.groups.has(groupKey(r));
+function scope(){ const a=[]; DATA.forEach((r,i)=>{ if(groupOk(r)&&voiceOk(r)&&S.moods.has(r.m)&&!S.excl.has(r.vi)) a.push(i); }); return a; }
+function moodsAvailable(){ const s=new Set(); DATA.forEach(r=>{ if(groupOk(r)&&voiceOk(r)&&!S.excl.has(r.vi)) s.add(r.m); }); return s; }
+const groupRelevant=k=>DATA.some(r=>groupKey(r)===k&&voiceOk(r));
+
+let SCOPE=[],MCPOOL=[],PARSEPOOL=[],HASVOC=false;
+function recompute(){
+  SCOPE=scope();
+  MCPOOL=SCOPE.filter(i=>!DATA[i].vocDup);
+  const seen=new Set(); PARSEPOOL=[];
+  for(const i of MCPOOL){ const k=DATA[i].vi+'|'+DATA[i].f; if(!seen.has(k)){ seen.add(k); PARSEPOOL.push(i);} }
+  HASVOC=MCPOOL.some(i=>DATA[i].c==='voc');
+  Q.parse=[];Q.mc=[];Q.type=[]; CUR.parse=CUR.mc=CUR.type=null;
+}
+
+// ---------- set-up ----------
+function renderTV(){
+  let h='<thead><tr><th></th>'+VOICES.map(v=>`<th><button data-col="${v.k}">${v.name}</button></th>`).join('')+'</tr></thead><tbody>';
+  for(const t of TENSES){
+    const any=VOICES.some(v=>AVAIL.has(t.k+':'+v.k));
+    const lab=`<span class="tname">${t.name}</span>${t.alt?`<span class="talt">${t.alt}</span>`:''}`;
+    h+=`<tr class="${any?'':'off'}"><th>${any?`<button data-row="${t.k}">${lab}</button>`:`<div style="padding:2px 4px">${lab}</div>`}</th>`;
+    for(const v of VOICES){
+      const c=t.k+':'+v.k;
+      if(!AVAIL.has(c)) h+=`<td><button class="cell" disabled title="Not available yet" aria-label="${t.name} ${v.name}, not available yet">–</button></td>`;
+      else { const on=S.cells.has(c); h+=`<td><button class="cell" data-cell="${c}" aria-pressed="${on}" aria-label="${t.name} ${v.name}">${on?I_CHECK:''}</button></td>`; }
+    }
+    h+='</tr>';
+  }
+  $('#tv').innerHTML=h+'</tbody>';
+}
+function renderMoods(){
+  const av=moodsAvailable();
+  $('#moods').innerHTML=MOODS.map(m=>{ const ok=av.has(m.k); const on=ok&&S.moods.has(m.k);
+    return `<button class="sq" data-mood="${m.k}" aria-pressed="${on}" ${ok?'':'disabled title="Nothing in this form for your current choices"'}>${on?I_CHECK:''}${m.name}</button>`; }).join('');
+}
+function groupCard(g,verbsTxt,whyOff){
+  const rel=!g.off&&groupRelevant(g.k);
+  const on=rel&&S.groups.has(g.k);
+  const why=g.off?'Not available yet.':(!rel?whyOff:'');
+  return `<button class="grp" data-grp="${g.k}" aria-pressed="${on}" ${rel?'':'disabled'}>
+    <span class="mark" aria-hidden="true">${on?I_CHECK:''}</span>
+    <span class="grp-h"><span class="grp-name">${g.name}</span>${g.alt?`<span class="grp-alt">${g.alt}</span>`:''}</span>
+    <span class="grp-ex">${g.ex}</span>
+    <span class="grp-desc">${g.desc}</span>
+    ${verbsTxt?`<span class="grp-verbs">${verbsTxt}</span>`:''}
+    ${why?`<span class="grp-why">${why}</span>`:''}
+  </button>`;
+}
+function renderGroups(){
+  $('#groups-p').innerHTML=PGROUPS.map(g=>groupCard(g,VERBS.filter(v=>v.cls===g.k).map(v=>v.lemma).join(', '),'Select a present, imperfect or future cell above to use this.')).join('');
+  $('#groups-a').innerHTML=AGROUPS.map(g=>groupCard(g,VERBS.map((v,vi)=>v.aorType===g.k?first1sg(vi,'aor'):null).filter(Boolean).join(', '),'Select an aorist cell above to use this.')).join('');
+}
+function cellHTML(r){ if(!r) return '<td>–</td>'; return `<td>${esc(r.f)}${r.alt?`<span class="or">or ${esc(r.alt)}</span>`:''}</td>`; }
+function scopedPP(vi,rows){
+  const parts=[VERBS[vi].lemma];
+  if(rows.some(r=>r.t==='fut')){ const f=first1sg(vi,'fut'); if(f) parts.push(f); }
+  if(rows.some(r=>r.t==='aor')){ const a=first1sg(vi,'aor'); if(a) parts.push(a); }
+  return parts.join(', ');
+}
+function renderPreview(){
+  const verbs=new Map();
+  for(const i of SCOPE){ const r=DATA[i]; if(!verbs.has(r.vi)) verbs.set(r.vi,[]); verbs.get(r.vi).push(r); }
+  // excluded verbs that would otherwise have forms
+  const exclRows=new Map();
+  DATA.forEach(r=>{ if(S.excl.has(r.vi)&&groupOk(r)&&voiceOk(r)&&S.moods.has(r.m)){ if(!exclRows.has(r.vi)) exclRows.set(r.vi,[]); exclRows.get(r.vi).push(r);} });
+  const order=[...new Set([...verbs.keys(),...exclRows.keys()])].sort((a,b)=>a-b);
+  const nEx=exclRows.size;
+  $('#count').innerHTML=(SCOPE.length||nEx)?`<b>${MCPOOL.length}</b> forms · <b>${verbs.size}</b> verb${verbs.size===1?'':'s'}${nEx?` · ${nEx} excluded`:''}`:'';
+  if(!order.length){ $('#preview').innerHTML='<div class="empty">Nothing matches yet. Pick at least one tense and voice, a form, and a verb type.</div>'; return; }
+  let h='<div class="vlist">', first=true;
+  for(const vi of order){
+    const v=VERBS[vi];
+    if(S.excl.has(vi)){
+      h+=`<div class="vexcl"><span class="vhead"><span class="vpp">${scopedPP(vi,exclRows.get(vi))}</span><span class="vdef">${esc(v.def)}</span></span><button class="vin" data-incl="${vi}">Include</button></div>`;
+      continue;
+    }
+    const rows=verbs.get(vi);
+    h+=`<details class="verb" ${first?'open':''}><summary>${I_CARET}<span class="vhead"><span class="vpp">${scopedPP(vi,rows)}</span><span class="vdef">${esc(v.def)}</span></span><span class="vmeta">${rows.filter(r=>!r.vocDup).length} forms</span><button class="vx" data-excl="${vi}" aria-label="Exclude ${v.lemma}" title="Exclude this verb">${I_X}</button></summary><div class="vbody">`;
+    if(v.note&&rows.some(()=>[...S.cells].some(c=>c.startsWith(v.noteT+':')))) h+=`<p class="vnote">${v.note}</p>`;
+    first=false;
+    for(const t of ['pres','impf','fut','aor']) for(const vo of ['act','mp','mid']){
+      const b=rows.filter(r=>r.t===t&&r.vo===vo); if(!b.length) continue;
+      h+=`<div class="blk"><h3>${cap(TL[t])} ${VL[vo]}${TALT[t]?` <span class="alt">· ${TALT[t]}</span>`:''}</h3>`;
+      const fm=FINITE.filter(m=>b.some(r=>r.m===m));
+      if(fm.length){
+        h+='<div class="ptab-wrap"><table class="par"><thead><tr><th></th>'+fm.map(m=>`<th>${cap(ML[m])}</th>`).join('')+'</tr></thead><tbody>';
+        for(const n of ['sg','pl']) for(const p of [1,2,3]){
+          h+=`<tr><th>${PL[p]} ${NL[n]}</th>`+fm.map(m=>cellHTML(b.find(r=>r.m===m&&r.p===p&&r.n===n))).join('')+'</tr>';
+        }
+        h+='</tbody></table></div>';
+      }
+      const inf=b.find(r=>r.m==='inf');
+      if(inf) h+=`<div><span class="ptitle">Infinitive</span>&nbsp; <span class="inf">${esc(inf.f)}</span></div>`;
+      const pt=b.filter(r=>r.m==='ptc');
+      if(pt.length){
+        h+='<div class="pgrid">';
+        for(const n of ['sg','pl']){
+          const sub=pt.filter(r=>r.n===n);
+          const vocSame=['m','f','n'].every(g=>{const a=sub.find(r=>r.g===g&&r.c==='voc'),b2=sub.find(r=>r.g===g&&r.c==='nom');return a&&b2&&a.f===b2.f;});
+          h+=`<div class="ptab-wrap"><table class="par"><thead><tr><th>${cap(NL[n])}</th><th>Masculine</th><th>Feminine</th><th>Neuter</th></tr></thead><tbody>`;
+          for(const c of ['nom','gen','dat','acc','voc']){
+            if(c==='voc'&&vocSame) continue;
+            const lab=(c==='nom'&&vocSame)?'Nominative / vocative':cap(CL[c]);
+            h+=`<tr><th>${lab}</th>`+['m','f','n'].map(g=>cellHTML(sub.find(r=>r.g===g&&r.c===c))).join('')+'</tr>';
+          }
+          h+='</tbody></table></div>';
+        }
+        h+='</div>';
+      }
+      h+='</div>';
+    }
+    h+='</div></details>';
+  }
+  h+='</div><p class="vnote" style="margin-top:10px">Forms are generated by rule from each verb’s stems. Check anything that looks off against your textbook.</p>';
+  $('#preview').innerHTML=h;
+}
+function renderSetup(){ renderTV(); renderMoods(); renderGroups(); renderPreview(); }
+function changed(){ S.excl.clear(); recompute(); save(); renderSetup(); }
+
+$('#tv').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b||b.disabled) return;
+  if(b.dataset.cell){ const c=b.dataset.cell; S.cells.has(c)?S.cells.delete(c):S.cells.add(c); }
+  else if(b.dataset.row){ const cs=VOICES.map(v=>b.dataset.row+':'+v.k).filter(c=>AVAIL.has(c)); const all=cs.every(c=>S.cells.has(c)); cs.forEach(c=>all?S.cells.delete(c):S.cells.add(c)); }
+  else if(b.dataset.col){ const cs=TENSES.map(t=>t.k+':'+b.dataset.col).filter(c=>AVAIL.has(c)); const all=cs.every(c=>S.cells.has(c)); cs.forEach(c=>all?S.cells.delete(c):S.cells.add(c)); }
+  changed();
+});
+$('#v-all').addEventListener('click',()=>{ S.cells=new Set(AVAIL); S.moods=new Set(MOODS.map(m=>m.k)); S.groups=new Set(PGROUPS.concat(AGROUPS).filter(g=>!g.off).map(g=>g.k)); changed(); });
+$('#v-none').addEventListener('click',()=>{ S.cells.clear(); S.moods.clear(); S.groups.clear(); changed(); });
+$('#moods').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||b.disabled) return; const m=b.dataset.mood; S.moods.has(m)?S.moods.delete(m):S.moods.add(m); changed(); });
+for(const id of ['#groups-p','#groups-a']) $(id).addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||b.disabled) return; const g=b.dataset.grp; S.groups.has(g)?S.groups.delete(g):S.groups.add(g); changed(); });
+$('#preview').addEventListener('click',e=>{
+  const x=e.target.closest('[data-excl]'), inc=e.target.closest('[data-incl]');
+  if(x){ e.preventDefault(); e.stopPropagation(); S.excl.add(+x.dataset.excl); }
+  else if(inc){ S.excl.delete(+inc.dataset.incl); }
+  else return;
+  recompute(); save(); renderMoods(); renderPreview();
+});
+
+// ---------- quiz plumbing ----------
+const Q={parse:[],mc:[],type:[]}, CUR={parse:null,mc:null,type:null}, LAST={};
+const RES=[];
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function nextIdx(mode){
+  const pool=mode==='parse'?PARSEPOOL:MCPOOL; if(!pool.length) return null;
+  if(!Q[mode].length){ Q[mode]=shuffle(pool.slice()); if(Q[mode].length>1&&Q[mode][0]===LAST[mode]) Q[mode].push(Q[mode].shift()); }
+  const i=Q[mode].shift(); LAST[mode]=i; return i;
+}
+function requeue(mode,i){ const k=Math.min(Q[mode].length,3+Math.floor(Math.random()*4)); Q[mode].splice(k,0,i); }
+function record(mode,ok,prompt,given,answer){ RES.unshift({mode,ok,prompt,given,answer}); updateScore(); }
+function updateScore(){ window.GVD_refreshScore&&window.GVD_refreshScore(); }
+function parseText(r){
+  const base=`${TL[r.t]} ${VL[r.vo]} ${ML[r.m]}`;
+  if(r.m==='ptc') return `${base}, ${GL[r.g]} ${CL[r.c]} ${NL[r.n]}`;
+  if(r.m==='inf') return base;
+  return `${base}, ${PL[r.p]} person ${NL[r.n]}`;
+}
+function userParseText(s){
+  const v=s.voice==='act'?'active':s.voice==='mid'?'middle':'passive';
+  const base=`${TL[s.t]} ${v} ${ML[s.m]}`;
+  if(s.m==='ptc') return `${base}, ${GL[s.g]} ${CL[s.c]} ${NL[s.n]}`;
+  if(s.m==='inf') return base;
+  return `${base}, ${PL[s.p]} person ${NL[s.n]}`;
+}
+function promptHTML(r){
+  const top=`${TL[r.t]}${TALT[r.t]?` <span class="qsub">(${TALT[r.t]})</span>`:''} ${VL[r.vo]} ${ML[r.m]}`;
+  let sub='';
+  if(r.m==='ptc') sub=`${GL[r.g]} · ${CL[r.c]} · ${NL[r.n]}`;
+  else if(r.m!=='inf') sub=`${PL[r.p]} person · ${NL[r.n]}`;
+  return `<div class="qlemma">${VERBS[r.vi].lemma}</div><div class="qdesc">${top}</div>${sub?`<div class="qsub">${sub}</div>`:''}`;
+}
+function fbHTML(ok,title,lines,nextId){
+  return `<div class="fb ${ok?'ok':'no'}"><div class="fb-t"><strong class="${ok?'ok-t':'no-t'}">${title}</strong>${lines.map(l=>`<div>${l}</div>`).join('')}</div><button class="btn primary" id="${nextId}">Next</button></div>`;
+}
+function emptyView(){ return `<div class="empty">Nothing to test yet. Choose what to drill on the Set up page.<div style="margin-top:12px"><button class="btn primary" data-go="setup">Go to Set up</button></div></div>`; }
+
+// ---------- parse ----------
+function parseOptions(){
+  const rs=PARSEPOOL.map(i=>DATA[i]);
+  const tenses=['pres','impf','fut','aor'].filter(t=>rs.some(r=>r.t===t));
+  const voices=VOICES.map(v=>v.k).filter(v=>rs.some(r=>v==='act'?r.vo==='act':v==='mid'?(r.vo==='mid'||(r.vo==='mp'&&S.cells.has(r.t+':mid'))):(r.vo==='mp'&&S.cells.has(r.t+':pass'))));
+  const moods=MOODS.map(m=>m.k).filter(m=>rs.some(r=>r.m===m));
+  return {tenses,voices,moods};
+}
+function newParse(){
+  const i=nextIdx('parse'); if(i==null){ CUR.parse=null; return; }
+  const o=parseOptions(); const sel={};
+  if(o.tenses.length===1) sel.t=o.tenses[0];
+  if(o.voices.length===1) sel.voice=o.voices[0];
+  if(o.moods.length===1) sel.m=o.moods[0];
+  CUR.parse={i,sel,opts:o,checked:false,result:null,best:null};
+}
+function validParses(i){ const r=DATA[i]; return (BYSTR.get(r.vi+'|'+r.f)||[]).map(j=>DATA[j]); }
+function voiceMatch(fv,uv){ return fv==='act'?uv==='act':fv==='mid'?uv==='mid':(uv==='mid'||uv==='pass'); }
+function matches(r,s){
+  if(r.t!==s.t||r.m!==s.m||!voiceMatch(r.vo,s.voice)) return false;
+  if(r.m==='ptc') return r.c===s.c&&r.g===s.g&&r.n===s.n;
+  if(r.m==='inf') return true;
+  return r.p===s.p&&r.n===s.n;
+}
+function closeness(r,s){ let k=0; if(r.t===s.t)k++; if(voiceMatch(r.vo,s.voice))k++; if(r.m===s.m)k+=2; if(r.m==='ptc'){ if(r.c===s.c)k++; if(r.g===s.g)k++; if(r.n===s.n)k++; } else if(r.m!=='inf'){ if(r.p===s.p)k++; if(r.n===s.n)k++; } return k; }
+function parseReady(s){ if(!s.t||!s.voice||!s.m) return false; if(s.m==='ptc') return !!(s.c&&s.g&&s.n); if(s.m==='inf') return true; return !!(s.p&&s.n); }
+
+// mark: chosen right -> ok + check; chosen wrong -> no + x; correct but not chosen -> want + check
+function markOf(chosen,isRight,checked){
+  if(!checked) return {cls:'',icon:''};
+  if(chosen&&isRight) return {cls:' ok-c',icon:I_CHECK};
+  if(chosen) return {cls:' no-c',icon:I_X};
+  if(isRight) return {cls:' want-c',icon:I_CHECK};
+  return {cls:'',icon:''};
+}
+function segHTML(label,key,vals,names,P){
+  if(vals.length<2) return '';
+  const s=P.sel, b=P.best;
+  return `<div class="prow"><div class="plabel">${label}</div><div class="seg">${vals.map(v=>{
+    const right=!!b&&(key==='voice'?voiceMatch(b.vo,v):b[key]===v);
+    const mk=markOf(s[key]===v,right,P.checked);
+    return `<button class="opt${mk.cls}" data-k="${key}" data-v="${v}" aria-pressed="${!P.checked&&s[key]===v}" ${P.checked?'disabled':''}>${mk.icon}${names(v)}</button>`; }).join('')}</div></div>`;
+}
+function renderParse(){
+  const el=$('#v-parse');
+  if(!CUR.parse) newParse();
+  const P=CUR.parse; if(!P){ el.innerHTML=emptyView(); return; }
+  const r=DATA[P.i], s=P.sel, o=P.opts, b=P.best;
+  let h=`<div class="qcard"><div class="qform">${esc(r.f)}</div>${P.checked?`<div class="qpp">${VERBS[r.vi].pp}</div>`:''}</div>`;
+  if(P.checked){
+    const uniq=[...new Set(validParses(P.i).map(parseText))];
+    const lines=[];
+    if(!P.result) lines.push(`<span class="gv">${userParseText(s)}</span>`);
+    lines.push(...uniq.map(t=>(uniq.length>1?'· ':'')+t));
+    h+=fbHTML(P.result,P.result?'Correct':(uniq.length>1?'Not quite. Valid parses:':'Not quite'),lines,'pnext');
+  }
+  h+='<div class="atile">';
+  h+=segHTML('Tense','t',o.tenses,v=>`${cap(TL[v])}${TALT[v]?` <span class="alt">${TALT[v]}</span>`:''}`,P);
+  h+=segHTML('Voice','voice',o.voices,v=>VOICES.find(x=>x.k===v).name,P);
+  h+=segHTML('Mood','m',o.moods,v=>cap(ML[v]),P);
+  if(s.m && s.m!=='inf'){
+    h+='<div class="grids">';
+    for(const n of ['sg','pl']){
+      if(s.m==='ptc'){
+        h+=`<table class="pick"><thead><tr><th class="corner">${cap(NL[n])}</th><th>Masculine</th><th>Feminine</th><th>Neuter</th></tr></thead><tbody>`;
+        for(const c of ['nom','gen','dat','acc','voc']){
+          if(c==='voc'&&!HASVOC) continue;
+          h+=`<tr><th>${cap(CL[c])}</th>`+['m','f','n'].map(g=>{
+            const on=s.n===n&&s.c===c&&s.g===g;
+            const right=!!b&&b.m==='ptc'&&b.n===n&&b.c===c&&b.g===g;
+            const mk=markOf(on,right,P.checked);
+            return `<td><button class="pc${mk.cls}" data-cell="${n}|${c}|${g}" aria-pressed="${!P.checked&&on}" aria-label="${CL[c]} ${GL[g]} ${NL[n]}" ${P.checked?'disabled':''}>${P.checked?mk.icon:(on?'<span class="dot"></span>':'')}</button></td>`; }).join('')+'</tr>';
+        }
+        h+='</tbody></table>';
+      } else {
+        h+=`<table class="pick pnum"><thead><tr><th class="corner">${cap(NL[n])}</th></tr></thead><tbody>`;
+        for(const p of [1,2,3]){
+          const dis=s.m==='imp'&&p===1; const on=s.n===n&&s.p===p;
+          const right=!!b&&FINITE.includes(b.m)&&b.n===n&&b.p===p;
+          const mk=markOf(on,right,P.checked);
+          h+=`<tr><td><button class="pc${mk.cls}${dis?' na':''}" data-pn="${n}|${p}" aria-pressed="${!P.checked&&on}" ${dis||P.checked?'disabled':''}>${mk.icon}${PL[p]} person</button></td></tr>`;
+        }
+        h+='</tbody></table>';
+      }
+    }
+    h+='</div>';
+  } else if(!s.m){ h+='<p class="hint">Choose a mood to see the person or case grid.</p>'; }
+  h+='</div>';
+  el.innerHTML=h;
+}
+$('#v-parse').addEventListener('click',e=>{
+  const P=CUR.parse; if(!P) return; const b=e.target.closest('button'); if(!b||b.disabled) return;
+  if(b.id==='pnext'){ newParse(); return renderParse(); }
+  if(P.checked) return;
+  if(b.dataset.k){ const k=b.dataset.k, v=b.dataset.v; P.sel[k]=P.sel[k]===v?undefined:v;
+    if(k==='m'){ delete P.sel.c; delete P.sel.g; delete P.sel.p; delete P.sel.n; } }
+  else if(b.dataset.cell){ const [n,c,g]=b.dataset.cell.split('|'); Object.assign(P.sel,{n,c,g}); }
+  else if(b.dataset.pn){ const [n,p]=b.dataset.pn.split('|'); Object.assign(P.sel,{n,p:+p}); }
+  if(parseReady(P.sel)) checkParse(); else renderParse();
+});
+function checkParse(){
+  const P=CUR.parse; if(!P||P.checked||!parseReady(P.sel)) return;
+  const vp=validParses(P.i);
+  const hit=vp.find(r=>matches(r,P.sel));
+  P.result=!!hit; P.best=hit||vp.slice().sort((a,b)=>closeness(b,P.sel)-closeness(a,P.sel))[0]; P.checked=true;
+  const r=DATA[P.i];
+  if(!P.result) requeue('parse',P.i);
+  record('parse',P.result,`<span class="g">${esc(r.f)}</span>`,P.result?'':userParseText(P.sel),[...new Set(vp.map(parseText))].join('; '));
+  renderParse();
+}
+
+// ---------- multiple choice ----------
+const DIMS=['t','vo','m','p','n','c','g'];
+function dist(a,b){ let d=0; for(const k of DIMS) if(a[k]!==b[k]) d++; return d; }
+// Distractors are built in slots so each wrong option differs from the answer by one feature.
+const vc=x=>x.vo==='act'?'act':'non';
+const BYVERB=new Map(); DATA.forEach((x,j)=>{ if(!BYVERB.has(x.vi)) BYVERB.set(x.vi,[]); BYVERB.get(x.vi).push(j); });
+function slotPick(r,pred,used,inScope){
+  const c=BYVERB.get(r.vi).filter(j=>{ const x=DATA[j]; return !used.has(x.f)&&pred(x); });
+  if(!c.length) return null;
+  const inS=c.filter(j=>inScope.has(j)); const pool=inS.length?inS:c;
+  return DATA[pool[Math.floor(Math.random()*pool.length)]];
+}
+function verbSlots(r){
+  const same=(x,keys)=>keys.every(k=>k==='vc'?vc(x)===vc(r):x[k]===r[k]);
+  if(FINITE.includes(r.m)) return [
+    [x=>FINITE.includes(x.m)&&same(x,['t','vo','m','p'])&&x.n!==r.n],
+    [x=>same(x,['t','m','p','n'])&&vc(x)!==vc(r)],
+    shuffle([x=>same(x,['vc','m','p','n'])&&x.t!==r.t, x=>FINITE.includes(x.m)&&same(x,['t','vc','p','n'])&&x.m!==r.m, x=>same(x,['t','vo','m','n'])&&x.p!==r.p]),
+  ];
+  if(r.m==='ptc') return [
+    [x=>x.m==='ptc'&&same(x,['t','vo','c','g'])&&x.n!==r.n],
+    [x=>x.m==='ptc'&&same(x,['t','vo','g','n'])&&x.c!==r.c],
+    shuffle([x=>x.m==='ptc'&&same(x,['vc','c','g','n'])&&x.t!==r.t, x=>x.m==='ptc'&&same(x,['t','c','g','n'])&&vc(x)!==vc(r), x=>x.m==='ptc'&&same(x,['t','vo','c','n'])&&x.g!==r.g]),
+  ];
+  return [ // infinitive
+    [x=>x.m==='inf'&&x.t===r.t&&vc(x)!==vc(r)],
+    [x=>x.m==='inf'&&vc(x)===vc(r)&&x.t!==r.t],
+    [x=>x.m==='inf'],
+  ];
+}
+// context frames: participles only (finite verbs and infinitives keep grammar terms)
+function frameFor(r){
+  if(!S.ctx||r.m!=='ptc') return null;
+  const F=GVD_CTX.agreeFrame(r,VERBS[r.vi].lemma); if(!F) return null;
+  const recs=DATA.filter(x=>x.vi===r.vi&&x.t===r.t&&x.vo===r.vo&&x.m==='ptc'&&F.cells.some(([c,n,g])=>x.c===c&&x.n===n&&x.g===g));
+  if(!recs.includes(r)) recs.push(r);
+  F.acc=[...new Set(recs.flatMap(x=>x.acc))]; F.forms=[...new Set(recs.flatMap(x=>[x.f,x.alt].filter(Boolean)))];
+  F.label=`${TL[r.t]}${TALT[r.t]?` (${TALT[r.t]})`:''} ${VL[r.vo]}`;
+  return F;
+}
+const askHTML=(r,F)=>F?GVD_CTX.frameHTML(F)+`<div class="qsub">${F.label}</div>`:promptHTML(r);
+const termLine=r=>`<span class="fbterm">${parseText(r)}</span>`;
+const answerHTML=(r,F)=>(F?F.forms:[r.f,r.alt].filter(Boolean)).map(f=>`<span class="g">${esc(f)}</span>`).join(' or ');
+const promptText=(r,F)=>F?`${F.text} · ${F.label}`:`${VERBS[r.vi].lemma} · ${parseText(r)}`;
+function modeClick(b,rerender){ const sw=b.closest('.pswitch'); if(!sw) return false; S.ctx=sw.dataset.pm==='ctx'; save(); CUR.mc=null; CUR.type=null; sw.setAttribute('aria-checked',S.ctx); setTimeout(rerender,190); return true; }
+function newMC(){
+  const i=nextIdx('mc'); if(i==null){ CUR.mc=null; return; }
+  const r=DATA[i]; const F=frameFor(r); const used=new Set([r.f,r.alt,...r.acc,...(F?F.acc.concat(F.forms):[])].filter(Boolean));
+  const inScope=new Set(SCOPE); const picks=[];
+  for(const slot of verbSlots(r)){
+    for(const pred of slot){ const x=slotPick(r,pred,used,inScope); if(x){ picks.push(x.f); used.add(x.f); break; } }
+  }
+  if(picks.length<3){ // fill with the nearest remaining forms
+    const c=BYVERB.get(r.vi).map(j=>DATA[j]).filter(x=>!used.has(x.f)).map(x=>({f:x.f,d:dist(x,r)+Math.random()*0.9})).sort((a,b)=>a.d-b.d);
+    for(const x of c){ if(picks.length>=3) break; if(!used.has(x.f)){ picks.push(x.f); used.add(x.f); } }
+  }
+  CUR.mc={i,F,opts:shuffle([r.f,...picks]),picked:null};
+}
+function renderMC(){
+  const el=$('#v-mc');
+  if(!CUR.mc) newMC();
+  const M=CUR.mc; if(!M){ el.innerHTML=emptyView(); return; }
+  const r=DATA[M.i], F=M.F;
+  let h=(S.moods.has('ptc')?GVD_CTX.modeHTML(S.ctx):'')+`<div class="qcard">${askHTML(r,F)}</div>`;
+  if(M.picked!=null){ const ok=M.opts[M.picked]===r.f;
+    const lines=ok?(F?[termLine(r)]:[]):[`You chose <span class="g gv">${esc(M.opts[M.picked])}</span>. The answer is ${answerHTML(r,F)}.`].concat(F?[termLine(r)]:[]);
+    h+=fbHTML(ok,ok?'Correct':'Not quite',lines,'mnext'); }
+  h+='<div class="mc">';
+  M.opts.forEach((f,k)=>{ let cls='mco', icon=''; if(M.picked!=null){ if(f===r.f){cls+=' ok';icon=I_CHECK;} else if(k===M.picked){cls+=' no';icon=I_X;} }
+    h+=`<button class="${cls}" data-o="${k}" ${M.picked!=null?'disabled':''}><span class="n">${k+1}</span><span>${esc(f)}</span>${icon}</button>`; });
+  h+='</div>';
+  el.innerHTML=h;
+}
+function pickMC(k){ const M=CUR.mc; if(!M||M.picked!=null||!M.opts[k]) return; M.picked=k; const r=DATA[M.i]; const ok=M.opts[k]===r.f; if(!ok) requeue('mc',M.i);
+  record('mc',ok,esc(promptText(r,M.F)),ok?'':M.opts[k],r.f); renderMC(); }
+$('#v-mc').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||b.disabled) return; if(modeClick(b,renderMC)) return; if(b.id==='mnext'){ newMC(); return renderMC(); } if(b.dataset.o!=null) pickMC(+b.dataset.o); });
+
+// ---------- type ----------
+const STRIP=/[̀́͂̓̔̄̆]/g;
+function norm(s){ return s.normalize('NFC').toLowerCase().trim().replace(/\s+/g,' ').replace(/\(ν\)$/,'').replace(/σ(?=$|\s)/g,'ς').normalize('NFC'); }
+function loose(s){ return s.normalize('NFD').replace(STRIP,'').normalize('NFC'); }
+function newType(){ const i=nextIdx('type'); CUR.type=i==null?null:{i,F:frameFor(DATA[i]),given:'',state:null}; }
+function renderType(){
+  const el=$('#v-type');
+  if(!CUR.type) newType();
+  const T=CUR.type; if(!T){ el.innerHTML=emptyView(); return; }
+  const r=DATA[T.i], F=T.F;
+  let h=(S.moods.has('ptc')?GVD_CTX.modeHTML(S.ctx):'')+`<div class="qcard">${askHTML(r,F)}</div>`;
+  if(T.state){ const ok=T.state==='ok';
+    const ans=answerHTML(r,F); const multi=F?F.forms.length>1:!!r.alt;
+    let lines=ok?(norm(T.given)===norm(r.f)&&!multi?[]:[`Listed as ${ans}`]):[`You typed <span class="g gv">${esc(T.given)}</span>. The answer is ${ans}.`];
+    if(F) lines=lines.concat([termLine(r)]);
+    h+=fbHTML(ok,ok?'Correct':(T.state==='accent'?'Right letters; check the accents and breathings':'Not quite'),lines,'tnext');
+  }
+  h+=`<div class="atile"><input class="tin ${T.state==='ok'?'ok':T.state?'no':''}" id="tin" lang="grc" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type Greek or Latin characters" value="${esc(T.given)}" ${T.state?'readonly':''} aria-label="Your answer">`;
+  h+=`<div class="actions"><label class="toggle"><input type="checkbox" id="tstrict" ${S.strict?'checked':''}> Accents and breathings must match</label>${T.state?'':'<button class="btn primary" id="tcheck">Check</button>'}</div>${window.LKEY_HTML}</div>`;
+  el.innerHTML=h;
+  if(!T.state){ const inp=$('#tin'); inp.focus({preventScroll:true}); inp.setSelectionRange(inp.value.length,inp.value.length); }
+}
+function checkType(){
+  const T=CUR.type; if(!T||T.state) return; const g=$('#tin').value; if(!g.trim()) return; T.given=g;
+  const r=DATA[T.i]; const ans=(T.F?T.F.acc:r.acc).map(norm); const n=norm(g);
+  let ok=ans.includes(n); const looseOk=ans.map(loose).includes(loose(n));
+  if(!ok&&!S.strict&&looseOk) ok=true;
+  T.state=ok?'ok':(looseOk?'accent':'no');
+  if(!ok) requeue('type',T.i);
+  record('type',ok,esc(promptText(r,T.F)),ok?'':g,r.f+(r.alt?' or '+r.alt:''));
+  renderType();
+}
+$('#v-type').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; if(modeClick(b,renderType)) return; if(b.id==='tcheck') checkType(); if(b.id==='tnext'){ newType(); renderType(); } });
+$('#v-type').addEventListener('change',e=>{ if(e.target.id==='tstrict'){ S.strict=e.target.checked; save(); } });
+$('#v-type').addEventListener('input',e=>{ if(e.target.id==='tin'&&CUR.type){ if(!e.isComposing) GVD_translitInput(e.target); CUR.type.given=e.target.value; } });
+
+// ---------- results ----------
+function renderResults(){
+  const el=$('#v-results');
+  const by=m=>{ const a=RES.filter(r=>r.mode===m); return `${a.filter(r=>r.ok).length}/${a.length}`; };
+  let h=`<div class="rsum"><div class="rs"><div class="k">Parse</div><div class="v">${by('parse')}</div></div><div class="rs"><div class="k">Choose</div><div class="v">${by('mc')}</div></div><div class="rs"><div class="k">Type</div><div class="v">${by('type')}</div></div></div>`;
+  if(!RES.length) h+='<div class="empty">No answers yet this session.</div>';
+  else {
+    h+='<div class="rlist">'+RES.map(x=>`<div class="ri"><span class="s ${x.ok?'ok':'no'}" aria-label="${x.ok?'correct':'wrong'}"></span><span class="m">${x.mode==='mc'?'Choose':cap(x.mode)}</span><div class="d"><div>${x.prompt}</div><div>${x.given?`<span class="${x.mode==='parse'?'':'g '}gv">${esc(x.given)}</span> → `:''}<span class="${x.mode==='parse'?'':'g'}">${esc(x.answer)}</span></div></div></div>`).join('')+'</div>';
+    h+='<div class="actions"><button class="btn" id="rclear">Clear results</button></div>';
+  }
+  el.innerHTML=h;
+}
+$('#v-results').addEventListener('click',e=>{ if(e.target.id==='rclear'){ RES.length=0; updateScore(); renderResults(); } });
+
+recompute();
+window.GVD_VERB={
+  prefix:'v',
+  preset(x){ S.cells=new Set((x.cells||[]).filter(c=>AVAIL.has(c))); S.moods=new Set(x.moods||[]); S.groups=new Set(x.groups||[]); S.excl.clear(); recompute(); save(); },
+  views:{setup:renderSetup,parse:renderParse,mc:renderMC,type:renderType,results:renderResults},
+  leave(){ if(CUR.parse&&CUR.parse.checked) CUR.parse=null; if(CUR.mc&&CUR.mc.picked!=null) CUR.mc=null; if(CUR.type&&CUR.type.state) CUR.type=null; },
+  score(){ return RES.filter(r=>r.ok).length+'/'+RES.length; },
+  key(e,tab){
+    if(tab==='parse'&&e.key==='Enter'){ e.preventDefault(); const P=CUR.parse; if(P&&P.checked){ newParse(); renderParse(); } }
+    else if(tab==='mc'){ const M=CUR.mc; if(!M) return; if(e.key==='Enter'&&M.picked!=null){ e.preventDefault(); newMC(); renderMC(); } else if(/^[1-4]$/.test(e.key)) pickMC(+e.key-1); }
+    else if(tab==='type'&&e.key==='Enter'){ e.preventDefault(); const T=CUR.type; if(!T) return; if(T.state){ newType(); renderType(); } else checkType(); }
+  }
+};
+})();
+</script>
+<script>
+/*NOUNDATA*/
+</script>
+<script>
+/*ADJDATA*/
+</script>
+<script>
+/*CTX*/
+</script>
+<script>
+/*NOMINALUI*/
+</script>
+<script>
+window.GVD_NOUN=makeNominalDrill({
+  prefix:'n', ctx:'noun', words:NOUNS, data:NDATA, storage:'gnd-settings-3',
+  defaults:['t1','t2','t3','art'],
+  emptyText:'Nothing selected yet. Pick at least one noun or pronoun type.',
+  genderRow:{title:'Gender and number',help:'Irregular nouns (γῆ, νοῦς, ἀνήρ, γυνή, Ζεύς) are grouped here instead of under their gender.'},
+  sections:[
+    {title:'Noun types',groups:[
+      {k:'t1',name:'Type 1',ex:'ψυχή, σοφία, πολίτης',desc:'Alpha- and eta-stems: feminines in -η, -ᾱ or -α, masculines in -ης or -ᾱς.'},
+      {k:'t2',name:'Type 2',ex:'λόγος, δῶρον',desc:'Omicron-stems in -ος and -ον.'},
+      {k:'t3',name:'Type 3',ex:'φύλαξ, σῶμα',desc:'Consonant-stems: the stem shows in the genitive.'},
+    ]},
+    {title:'Pronouns',groups:[
+      {k:'art',name:'Definite article',ex:'ὁ, ἡ, τό',desc:'All three genders, no vocative.'},
+      {k:'pers',name:'Personal pronouns and αὐτός',ex:'ἐγώ, σύ, αὐτός',desc:'The unemphatic μου, μοι, με, σου, σοι, σε are also accepted.'},
+      {k:'refl',name:'Reflexive pronouns',ex:'ἐμαυτοῦ, σεαυτοῦ, ἑαυτοῦ',desc:'No nominative. The short forms σαυτοῦ and αὑτοῦ are also accepted.'},
+      {k:'dem',name:'Demonstratives',ex:'οὗτος, ἐκεῖνος, ὅδε',desc:'This, that, and this here.'},
+      {k:'rel',name:'Relative, interrogative and indefinite',ex:'ὅς, τίς, τις, ὅστις',desc:'Short forms such as τοῦ, του and ὅτου are also accepted.'},
+    ]},
+  ]
+});
+window.GVD_ADJ=makeNominalDrill({
+  prefix:'a', ctx:'adj', words:ADJS, data:ADATA, storage:'gad-settings-1',
+  defaults:['a212','a212a','a22'],
+  emptyText:'Nothing selected yet. Pick at least one adjective type.',
+  sections:[
+    {title:'Adjective types',groups:[
+      {k:'a212',name:'Type 2-1-2',alt:'first and second declension',ex:'καλός, καλή, καλόν',desc:'Masculine and neuter in type 2, feminine in type 1 with -η.'},
+      {k:'a212a',name:'Type 2-1-2 with -ᾱ',ex:'δίκαιος, δικαία, δίκαιον',desc:'The stem ends in ε, ι or ρ, so the feminine singular keeps -ᾱ.'},
+      {k:'a22',name:'Type 2-2',alt:'compound',ex:'ἄδικος, ἄδικον',desc:'Two endings: masculine and feminine share one set of forms.'},
+      {k:'a313',name:'Type 3-1-3',ex:'πᾶς, πᾶσα, πᾶν',desc:'Type 3 masculine and neuter, type 1 feminine.',off:true},
+      {k:'a33',name:'Type 3-3',ex:'ἀληθής, ἀληθές',desc:'Type 3 throughout, two endings.',off:true},
+    ]},
+  ]
+});
+</script>
+<script>
+/*TB*/
+</script>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const DRILLS={verb:window.GVD_VERB,noun:window.GVD_NOUN,adj:window.GVD_ADJ,book:window.GVD_BOOK};
+const NAMES={verb:'Greek Verbs',noun:'Greek Nouns',adj:'Greek Adjectives',book:'Practice by textbook'};
+const SH={drill:'verb',tab:{verb:'setup',noun:'setup',adj:'setup',book:'page'}};
+try{ const o=JSON.parse(localStorage.getItem('gd-shell')||'null'); if(o&&DRILLS[o.drill]){ SH.drill=o.drill; Object.assign(SH.tab,o.tab||{}); } }catch(e){}
+function save(){ try{ localStorage.setItem('gd-shell',JSON.stringify(SH)); }catch(e){} }
+window.GVD_refreshScore=()=>{ $('#score').textContent=DRILLS[SH.drill].score(); };
+function show(tab){
+  const D=DRILLS[SH.drill];
+  D.leave();
+  SH.tab[SH.drill]=tab; save();
+  const isBook=SH.drill==='book'; $('.tabs').hidden=isBook; $('#score').hidden=isBook;
+  document.querySelectorAll('.tab').forEach(t=>{ if(t.dataset.tab===tab) t.setAttribute('aria-current','page'); else t.removeAttribute('aria-current'); });
+  document.querySelectorAll('main > section.view').forEach(v=>{ v.hidden=(v.id!==D.prefix+'-'+tab); });
+  $('#drillname').textContent=NAMES[SH.drill];
+  document.querySelectorAll('.mi').forEach(m=>m.setAttribute('aria-checked',m.dataset.drill===SH.drill));
+  D.views[tab]();
+  window.GVD_refreshScore();
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+window.GVD_openPreset=(drill,preset)=>{ DRILLS[SH.drill].leave(); DRILLS[drill].preset(preset); SH.drill=drill; show('setup'); };
+function setMenu(open){ $('#drillmenu').hidden=!open; $('#drillbtn').setAttribute('aria-expanded',open); }
+$('#drillbtn').addEventListener('click',e=>{ e.stopPropagation(); setMenu($('#drillmenu').hidden); });
+$('#drillmenu').addEventListener('click',e=>{ const m=e.target.closest('.mi'); if(!m) return; setMenu(false); if(m.dataset.drill!==SH.drill){ DRILLS[SH.drill].leave(); SH.drill=m.dataset.drill; } show(SH.tab[SH.drill]); });
+document.addEventListener('click',e=>{ if(!e.target.closest('.drill')) setMenu(false); const g=e.target.closest('[data-go]'); if(g) show(g.dataset.go); });
+document.querySelector('.tabs').addEventListener('click',e=>{ const b=e.target.closest('.tab'); if(b) show(b.dataset.tab); });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ setMenu(false); return; }
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  if(!$('#drillmenu').hidden) return;
+  DRILLS[SH.drill].key(e,SH.tab[SH.drill]);
+});
+if(SH.drill==='book') SH.tab.book='page';
+show(SH.tab[SH.drill]);
+})();
+</script>
