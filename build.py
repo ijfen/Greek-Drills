@@ -11,6 +11,7 @@ for marker, text in [('/*ENGINE*/', strip(read('engine.js'))), ('/*NOUNDATA*/', 
     page = page.replace(marker, text)
 head = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+        '<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8F%BA%3C/text%3E%3C/svg%3E">\n'
         # In a normal browser tab the browser's own toolbar covers the notch, so drop the top safe-area band
         '<style>body::before{content:none!important}.bar{top:0!important}</style>\n</head>\n<body>\n')
 (Path(__file__).parent / 'index.html').write_text(head + page + '\n</body>\n</html>\n')
