@@ -41,7 +41,9 @@ function agreeFrame(r,lemma){
   const words=finish([A,slot(lemma),NF]);
   return {words,text:toText(words),cells};
 }
-function frameHTML(F){ return `<div class="qctx g">${F.words.map(w=>w.slot?`<span class="slot">${w.slot}</span>`:w).join(' ')}</div>`; }
+function frameHTML(F,gloss){ return `<div class="qctx g">${F.words.map(w=>w.slot?(gloss?`<span class="slot sdef">${gloss}</span>`:`<span class="slot">${w.slot}</span>`):w).join(' ')}</div>`; }
+// true when an accepted answer is the same as the word shown in the prompt
+function giveaway(head,forms){ const norm=s=>String(s).normalize('NFC').toLowerCase().replace(/\(ν\)$/,''); const parts=String(head).split(/,\s*/).map(norm); return forms.some(f=>parts.includes(norm(f))); }
 function modeHTML(on){ return `<div class="pmode"><button class="pswitch" role="switch" aria-checked="${on}" aria-label="Ask with context instead of grammar terms" data-pm="${on?'terms':'ctx'}"><span class="pthumb" aria-hidden="true"></span><span class="plab">Grammar terms</span><span class="plab">Context</span></button></div>`; }
-window.GVD_CTX={nounFrame,agreeFrame,frameHTML,modeHTML};
+window.GVD_CTX={nounFrame,agreeFrame,frameHTML,modeHTML,giveaway};
 })();

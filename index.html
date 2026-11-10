@@ -197,6 +197,8 @@ table.par tbody tr+tr td,table.par tbody tr+tr th{border-top:1px solid var(--lin
 .qctx{font-size:clamp(1.5rem,5vw,2rem);line-height:1.3;text-wrap:balance}
 .slot{color:var(--muted);border:1.5px dashed var(--line);border-radius:7px;padding:0 .3em;background:var(--bg);white-space:nowrap}
 .fbterm{color:var(--muted);font-size:.9rem}
+.qgloss{font-size:1.2rem;font-style:italic;line-height:1.3;text-wrap:balance}
+.slot.sdef{font-family:var(--ui);font-style:italic;font-size:.62em;white-space:normal;vertical-align:.15em}
 .qform{font-family:var(--greek);font-size:clamp(1.9rem,6vw,2.6rem);line-height:1.15}
 .qlemma{font-family:var(--greek);font-size:1.4rem;line-height:1.2}
 .qdesc{font-size:1rem}
@@ -926,12 +928,12 @@ function userParseText(s){
   if(s.m==='inf') return base;
   return `${base}, ${PL[s.p]} person ${NL[s.n]}`;
 }
-function promptHTML(r){
+function promptHTML(r,gloss){
   const top=`${TL[r.t]}${TALT[r.t]?` <span class="qsub">(${TALT[r.t]})</span>`:''} ${VL[r.vo]} ${ML[r.m]}`;
   let sub='';
   if(r.m==='ptc') sub=`${GL[r.g]} · ${CL[r.c]} · ${NL[r.n]}`;
   else if(r.m!=='inf') sub=`${PL[r.p]} person · ${NL[r.n]}`;
-  return `<div class="qlemma">${VERBS[r.vi].lemma}</div><div class="qdesc">${top}</div>${sub?`<div class="qsub">${sub}</div>`:''}`;
+  return `${gloss?`<div class="qgloss">${esc(gloss)}</div>`:`<div class="qlemma">${VERBS[r.vi].lemma}</div>`}<div class="qdesc">${top}</div>${sub?`<div class="qsub">${sub}</div>`:''}`;
 }
 function fbHTML(ok,title,lines,nextId){
   return `<div class="fb ${ok?'ok':'no'}"><div class="fb-t"><strong class="${ok?'ok-t':'no-t'}">${title}</strong>${lines.map(l=>`<div>${l}</div>`).join('')}</div><button class="btn primary" id="${nextId}">Next</button></div>`;
@@ -1089,10 +1091,12 @@ function frameFor(r){
   F.label=`${TL[r.t]}${TALT[r.t]?` (${TALT[r.t]})`:''} ${VL[r.vo]}`;
   return F;
 }
-const askHTML=(r,F)=>F?GVD_CTX.frameHTML(F)+`<div class="qsub">${F.label}</div>`:promptHTML(r);
+// when the answer would just repeat the verb shown (λύω, present active 1st singular), ask with the English gloss
+const glossFor=(r,F)=>GVD_CTX.giveaway(VERBS[r.vi].lemma,F?F.forms:[r.f,r.alt,...r.acc].filter(Boolean))?VERBS[r.vi].def:null;
+const askHTML=(r,F)=>{ const g=glossFor(r,F); return F?GVD_CTX.frameHTML(F,g&&esc(g))+`<div class="qsub">${F.label}</div>`:promptHTML(r,g); };
 const termLine=r=>`<span class="fbterm">${parseText(r)}</span>`;
 const answerHTML=(r,F)=>(F?F.forms:[r.f,r.alt].filter(Boolean)).map(f=>`<span class="g">${esc(f)}</span>`).join(' or ');
-const promptText=(r,F)=>F?`${F.text} · ${F.label}`:`${VERBS[r.vi].lemma} · ${parseText(r)}`;
+const promptText=(r,F)=>{ const g=glossFor(r,F); return F?`${F.text} · ${F.label}`:`${g?`“${g}”`:VERBS[r.vi].lemma} · ${parseText(r)}`; };
 function modeClick(b,rerender){ const sw=b.closest('.pswitch'); if(!sw) return false; S.ctx=sw.dataset.pm==='ctx'; save(); CUR.mc=null; CUR.type=null; sw.setAttribute('aria-checked',S.ctx); setTimeout(rerender,190); return true; }
 function newMC(){
   const i=nextIdx('mc'); if(i==null){ CUR.mc=null; return; }
@@ -1439,9 +1443,11 @@ function agreeFrame(r,lemma){
   const words=finish([A,slot(lemma),NF]);
   return {words,text:toText(words),cells};
 }
-function frameHTML(F){ return `<div class="qctx g">${F.words.map(w=>w.slot?`<span class="slot">${w.slot}</span>`:w).join(' ')}</div>`; }
+function frameHTML(F,gloss){ return `<div class="qctx g">${F.words.map(w=>w.slot?(gloss?`<span class="slot sdef">${gloss}</span>`:`<span class="slot">${w.slot}</span>`):w).join(' ')}</div>`; }
+// true when an accepted answer is the same as the word shown in the prompt
+function giveaway(head,forms){ const norm=s=>String(s).normalize('NFC').toLowerCase().replace(/\(ν\)$/,''); const parts=String(head).split(/,\s*/).map(norm); return forms.some(f=>parts.includes(norm(f))); }
 function modeHTML(on){ return `<div class="pmode"><button class="pswitch" role="switch" aria-checked="${on}" aria-label="Ask with context instead of grammar terms" data-pm="${on?'terms':'ctx'}"><span class="pthumb" aria-hidden="true"></span><span class="plab">Grammar terms</span><span class="plab">Context</span></button></div>`; }
-window.GVD_CTX={nounFrame,agreeFrame,frameHTML,modeHTML};
+window.GVD_CTX={nounFrame,agreeFrame,frameHTML,modeHTML,giveaway};
 })();
 
 </script>
@@ -1579,7 +1585,7 @@ function record(mode,ok,prompt,given,answer){ RES.unshift({mode,ok,prompt,given,
 const parseText=r=>`${r.g?GL[r.g]+' ':''}${CL[r.c]} ${NL[r.n]}`;
 const userParseText=s=>`${s.g?GL[s.g]+' ':''}${CL[s.c]} ${NL[s.n]}`;
 const headword=ni=>WORDS[ni].head||WORDS[ni].lemma;
-function promptHTML(r){ return `<div class="qlemma">${headword(r.ni)}</div><div class="qdesc">${parseText(r)}</div>`; }
+function promptHTML(r,gloss){ return `${gloss?`<div class="qgloss">${esc(gloss)}</div>`:`<div class="qlemma">${headword(r.ni)}</div>`}<div class="qdesc">${parseText(r)}</div>`; }
 function fbHTML(ok,title,lines,nextId){
   return `<div class="fb ${ok?'ok':'no'}"><div class="fb-t"><strong class="${ok?'ok-t':'no-t'}">${title}</strong>${lines.map(l=>`<div>${l}</div>`).join('')}</div><button class="btn primary" id="${nextId}">Next</button></div>`;
 }
@@ -1664,10 +1670,12 @@ function frameFor(r){
   F.forms=[...new Set(recs.flatMap(x=>[x.f,x.alt].filter(Boolean)))];
   return F;
 }
-const askHTML=(r,F)=>F?GVD_CTX.frameHTML(F):promptHTML(r);
+// when the answer would just repeat the word shown, ask with the English gloss instead
+const glossFor=(r,F)=>GVD_CTX.giveaway(F?WORDS[r.ni].lemma:headword(r.ni),F?F.forms:[r.f,r.alt,...r.acc].filter(Boolean))?WORDS[r.ni].def:null;
+const askHTML=(r,F)=>{ const g=glossFor(r,F); return F?GVD_CTX.frameHTML(F,g&&esc(g)):promptHTML(r,g); };
 const termLine=r=>`<span class="fbterm">${parseText(r)}</span>`;
 const answerHTML=(r,F)=>(F?F.forms:[r.f,r.alt].filter(Boolean)).map(f=>`<span class="g">${esc(f)}</span>`).join(' or ');
-const promptText=(r,F)=>F?F.text:`${headword(r.ni)} · ${parseText(r)}`;
+const promptText=(r,F)=>{ const g=glossFor(r,F); return F?(g?F.text.replace(/\[[^\]]*\]/,`[${g}]`):F.text):`${g?`“${g}”`:headword(r.ni)} · ${parseText(r)}`; };
 function modeClick(b,rerender){ const sw=b.closest('.pswitch'); if(!sw) return false; S.ctx=sw.dataset.pm==='ctx'; save(); CUR.mc=null; CUR.type=null; sw.setAttribute('aria-checked',S.ctx); setTimeout(rerender,190); return true; }
 
 // ---------- multiple choice ----------

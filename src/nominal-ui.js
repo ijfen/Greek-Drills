@@ -131,7 +131,7 @@ function record(mode,ok,prompt,given,answer){ RES.unshift({mode,ok,prompt,given,
 const parseText=r=>`${r.g?GL[r.g]+' ':''}${CL[r.c]} ${NL[r.n]}`;
 const userParseText=s=>`${s.g?GL[s.g]+' ':''}${CL[s.c]} ${NL[s.n]}`;
 const headword=ni=>WORDS[ni].head||WORDS[ni].lemma;
-function promptHTML(r){ return `<div class="qlemma">${headword(r.ni)}</div><div class="qdesc">${parseText(r)}</div>`; }
+function promptHTML(r,gloss){ return `${gloss?`<div class="qgloss">${esc(gloss)}</div>`:`<div class="qlemma">${headword(r.ni)}</div>`}<div class="qdesc">${parseText(r)}</div>`; }
 function fbHTML(ok,title,lines,nextId){
   return `<div class="fb ${ok?'ok':'no'}"><div class="fb-t"><strong class="${ok?'ok-t':'no-t'}">${title}</strong>${lines.map(l=>`<div>${l}</div>`).join('')}</div><button class="btn primary" id="${nextId}">Next</button></div>`;
 }
@@ -216,10 +216,12 @@ function frameFor(r){
   F.forms=[...new Set(recs.flatMap(x=>[x.f,x.alt].filter(Boolean)))];
   return F;
 }
-const askHTML=(r,F)=>F?GVD_CTX.frameHTML(F):promptHTML(r);
+// when the answer would just repeat the word shown, ask with the English gloss instead
+const glossFor=(r,F)=>GVD_CTX.giveaway(F?WORDS[r.ni].lemma:headword(r.ni),F?F.forms:[r.f,r.alt,...r.acc].filter(Boolean))?WORDS[r.ni].def:null;
+const askHTML=(r,F)=>{ const g=glossFor(r,F); return F?GVD_CTX.frameHTML(F,g&&esc(g)):promptHTML(r,g); };
 const termLine=r=>`<span class="fbterm">${parseText(r)}</span>`;
 const answerHTML=(r,F)=>(F?F.forms:[r.f,r.alt].filter(Boolean)).map(f=>`<span class="g">${esc(f)}</span>`).join(' or ');
-const promptText=(r,F)=>F?F.text:`${headword(r.ni)} · ${parseText(r)}`;
+const promptText=(r,F)=>{ const g=glossFor(r,F); return F?(g?F.text.replace(/\[[^\]]*\]/,`[${g}]`):F.text):`${g?`“${g}”`:headword(r.ni)} · ${parseText(r)}`; };
 function modeClick(b,rerender){ const sw=b.closest('.pswitch'); if(!sw) return false; S.ctx=sw.dataset.pm==='ctx'; save(); CUR.mc=null; CUR.type=null; sw.setAttribute('aria-checked',S.ctx); setTimeout(rerender,190); return true; }
 
 // ---------- multiple choice ----------
