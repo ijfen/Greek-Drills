@@ -1,0 +1,22 @@
+# Greek Drills
+
+> Free web tool for practicing Ancient Greek paradigms (morphology): parse a form, choose the right form from four close alternatives, or type it. Works in any browser, no account. https://greekdrills.ijfen.com/
+
+## What it drills
+
+- Verbs: thematic verbs in the present, imperfect, future and root (second) aorist, in every mood, with infinitives and participles; deponents; εἰμί
+- Nouns: first, second and third declension (Mollin's types 1, 2 and 3), including irregular nouns such as ἀνήρ, γυνή, Ζεύς
+- Pronouns: the article; personal pronouns and αὐτός; reflexive, demonstrative, relative, interrogative and indefinite pronouns
+- Adjectives: first- and second-declension (2-1-2 and two-ending 2-2) adjectives
+
+## Features
+
+- Three drills: Parse (identify tense, voice, mood, person, number, case, gender), Choose (multiple choice with near-miss distractors), Type (answer in polytonic Greek or Latin letters using Beta Code; accents optional)
+- Questions can be asked with grammar terms or with context, e.g. τῆς [καλός] ψυχῆς
+- Practice by Textbook: one tap sets up a drill for everything taught up to a given chapter of Mollin & Williamson (An Introduction to Ancient Greek), Athenaze, Hansen & Quinn (Greek: An Intensive Course), Mastronarde (Introduction to Attic Greek), or Reading Greek (JACT)
+
+## Links
+
+- [Greek Drills](https://greekdrills.ijfen.com/): the tool
+- [Source code](https://github.com/ijfen/Greek-Drills)
+- [Made by IJFEN](https://ijfen.com)

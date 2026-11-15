@@ -3,11 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Greek Drills: Ancient Greek Paradigm and Parsing Practice</title>
+<meta name="description" content="Free Ancient Greek paradigm drills for verbs, participles, nouns, pronouns and adjectives: parse, multiple choice and typing, with presets by chapter for Athenaze, Mollin &amp; Williamson, Hansen &amp; Quinn, Mastronarde and Reading Greek.">
+<link rel="canonical" href="https://greekdrills.ijfen.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Greek Drills">
+<meta property="og:title" content="Greek Drills: Ancient Greek Paradigm and Parsing Practice">
+<meta property="og:description" content="Free Ancient Greek paradigm drills for verbs, participles, nouns, pronouns and adjectives: parse, multiple choice and typing, with presets by chapter for Athenaze, Mollin &amp; Williamson, Hansen &amp; Quinn, Mastronarde and Reading Greek.">
+<meta property="og:url" content="https://greekdrills.ijfen.com/">
+<meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8F%BA%3C/text%3E%3C/svg%3E">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Greek Drills", "url": "https://greekdrills.ijfen.com/", "description": "Free Ancient Greek paradigm drills for verbs, participles, nouns, pronouns and adjectives: parse, multiple choice and typing, with presets by chapter for Athenaze, Mollin & Williamson, Hansen & Quinn, Mastronarde and Reading Greek.", "applicationCategory": "EducationalApplication", "operatingSystem": "Any (web browser)", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "inLanguage": "en", "about": {"@type": "Language", "name": "Ancient Greek", "alternateName": "grc"}, "keywords": "Ancient Greek, paradigms, parsing, declension, conjugation, morphology, participles, Athenaze, Mollin and Williamson, Hansen and Quinn, Mastronarde, Reading Greek", "creator": {"@type": "Person", "name": "IJFEN", "url": "https://ijfen.com"}}</script>
 <style>body::before{content:none!important}.bar{top:0!important}</style>
 </head>
 <body>
-<title>Greek Drills</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,7 +69,16 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid
 .mi[aria-checked="true"] .ico{visibility:visible}
 @media (max-width:600px){ .bar-in{flex-wrap:wrap;row-gap:6px} .tabs{order:3;width:100%} .tab{flex:1;padding:5px 6px} }
 .grids.one{grid-template-columns:1fr}
-.credit{max-width:920px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 28px;text-align:center;font-size:.8rem;letter-spacing:.02em}
+.credit{max-width:920px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 28px;font-size:.8rem;letter-spacing:.02em;display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:6px 18px}
+.about summary{list-style:none;cursor:pointer;color:var(--muted);text-align:center}
+.about summary::-webkit-details-marker{display:none}
+.about summary:hover{color:var(--ink);text-decoration:underline}
+.about[open]{flex-basis:100%}
+.about[open] summary{color:var(--ink)}
+.about-b{max-width:62ch;margin:10px auto 6px;text-align:left;font-size:.88rem;letter-spacing:0;line-height:1.55;color:var(--muted)}
+.about-b p{margin:0 0 8px}
+.about-b ul{margin:0 0 8px;padding-left:1.2em}
+.about-b cite{font-style:italic}
 .credit a{color:var(--muted);text-decoration:none}
 .credit a:hover,.credit a:focus-visible{color:var(--ink);text-decoration:underline}
 .msep{height:1px;background:var(--line);margin:4px 6px}
@@ -384,7 +402,25 @@ table.pick td{padding:0}
     <div class="tgrid" id="t-grid"></div>
   </section>
 </main>
-<footer class="credit" id="credit" hidden><a href="https://ijfen.com" target="_blank" rel="noopener">made by IJFEN</a></footer>
+<footer class="credit" id="credit">
+  <details class="about">
+    <summary>About</summary>
+    <div class="about-b">
+      <p>Greek Drills is a free tool for practicing Ancient Greek paradigms. Set up your practice, then drill it in three ways: parse a form, pick the right form from four close alternatives, or type it yourself. Polytonic Greek is supported but not required.</p>
+      <p>It currently covers declension and conjugation through the early chapters of most courses:</p>
+      <ul>
+        <li>thematic verbs in the present, imperfect, future and root aorist, in every mood, with infinitives and participles;</li>
+        <li>deponents and εἰμί;</li>
+        <li>nouns of all three declensions;</li>
+        <li>the article and the personal, reflexive, demonstrative, relative, interrogative and indefinite pronouns;</li>
+        <li>first- and second-declension adjectives.</li>
+      </ul>
+      <p>Questions can use grammar terms or a short phrase for context, such as τῆς [καλός] ψυχῆς.</p>
+      <p>Practice by Textbook quickly sets up a drill from your place in Mollin and Williamson’s <cite>An Introduction to Ancient Greek</cite>, <cite>Athenaze</cite>, Hansen and Quinn’s <cite>Greek: An Intensive Course</cite>, Mastronarde’s <cite>Introduction to Attic Greek</cite>, or <cite>Reading Greek</cite>.</p>
+    </div>
+  </details>
+  <a href="https://ijfen.com" target="_blank" rel="noopener">made by IJFEN</a>
+</footer>
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script>

@@ -2,7 +2,7 @@
 
 Parse, multiple-choice and typing drills for Ancient Greek verbs, nouns, pronouns and adjectives, plus a textbook map (Mollin & Williamson, Athenaze, Hansen & Quinn, Mastronarde, Reading Greek) that sets up drills by chapter.
 
-Open `index.html` in a browser. It is a single self-contained page; the only external request is Google Fonts.
+Use it at **https://greekdrills.ijfen.com**, or open `index.html` in a browser. It is a single self-contained page; the only external request is Google Fonts.
 
 ## Source
 
