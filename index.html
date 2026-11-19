@@ -73,6 +73,8 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid
 .about summary{list-style:none;cursor:pointer;color:var(--muted);text-align:center}
 .about summary::-webkit-details-marker{display:none}
 .about summary:hover{color:var(--ink);text-decoration:underline}
+.themebtn{border:0;background:none;padding:0;font:inherit;letter-spacing:inherit;color:var(--muted);cursor:pointer}
+.themebtn:hover,.themebtn:focus-visible{color:var(--ink);text-decoration:underline}
 .about[open]{flex-basis:100%}
 .about[open] summary{color:var(--ink)}
 .about-b{max-width:62ch;margin:10px auto 6px;text-align:left;font-size:.88rem;letter-spacing:0;line-height:1.55;color:var(--muted)}
@@ -313,6 +315,7 @@ table.pick td{padding:0}
 @media (prefers-reduced-motion:no-preference){.tab,.cell,.sq,.grp,.opt,.pc,.mco{transition:background-color .12s,border-color .12s,color .12s}}
 @media (prefers-reduced-motion:reduce){.caret{transition:none}}
 </style>
+<script>try{var t=localStorage.getItem('gd-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 
 <div class="bar"><div class="bar-in">
   <div class="drill">
@@ -419,6 +422,7 @@ table.pick td{padding:0}
       <p>Practice by Textbook quickly sets up a drill from your place in Mollin and Williamson’s <cite>An Introduction to Ancient Greek</cite>, <cite>Athenaze</cite>, Hansen and Quinn’s <cite>Greek: An Intensive Course</cite>, Mastronarde’s <cite>Introduction to Attic Greek</cite>, or <cite>Reading Greek</cite>.</p>
     </div>
   </details>
+  <button type="button" class="themebtn" id="themebtn">Light mode</button>
   <a href="https://ijfen.com" target="_blank" rel="noopener">made by IJFEN</a>
 </footer>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -2226,6 +2230,15 @@ document.addEventListener('keydown',e=>{
 });
 if(SH.drill==='book') SH.tab.book='page';
 show(SH.tab[SH.drill]);
+// light / dark toggle in the footer; the choice is remembered on this device
+(function(){
+  const root=document.documentElement, btn=$('#themebtn'), mq=matchMedia('(prefers-color-scheme: dark)');
+  const eff=()=>root.getAttribute('data-theme')||(mq.matches?'dark':'light');
+  const label=()=>{ btn.textContent=eff()==='dark'?'Light mode':'Dark mode'; };
+  btn.addEventListener('click',()=>{ const next=eff()==='dark'?'light':'dark'; root.setAttribute('data-theme',next); try{ localStorage.setItem('gd-theme',next); }catch(e){} label(); });
+  if(mq.addEventListener) mq.addEventListener('change',label);
+  label();
+})();
 })();
 </script>
 
